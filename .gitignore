@@ -1,0 +1,6 @@
+*.sconsign.dblite
+/.eproject
+*.o
+*.a
+*.e
+/.configure

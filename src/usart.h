@@ -157,10 +157,12 @@ void usart_send_async(UsartControl* usart,
  * @param usart USART to receive data over.
  * @param receive_buffer Buffer to hold received data.
  * @param buffer_num_bytes Maximum number of bytes to read.
+ * @return the number of bytes read, which can differ from @p buffer_num_bytes
+ *         if a receive buffer is enabled on @p usart.
  */
-void usart_receive(UsartControl* usart,
-                   uint8_t* receive_buffer,
-                   uint8_t buffer_num_bytes);
+uint8_t usart_receive(UsartControl* usart,
+                      uint8_t* receive_buffer,
+                      uint8_t buffer_num_bytes);
 
 /**
  * Convenience function to synchronously receive a byte from the USART.

@@ -10,6 +10,57 @@
 #include <avr/io.h>
 #include <stdbool.h>
 
+// --------------------------------[ ADC Routines ]-----------------------------
+//
+
+typedef void ADC_t;
+typedef uint16_t adc_result_t;
+
+inline void chip_adc_set_enabled(ADC_t* adc, bool enabled) {
+  SET_BIT_TO(ADCSRA, ADEN, enabled);
+}
+
+inline void chip_adc_set_reference(ADC_t* adc, uint8_t reference_selection) {
+  ADMUX = ADMUX & (_BV(REFS0) - 1) | (reference_selection << REFS0);
+}
+
+inline void chip_adc_set_left_adjusted(ADC_t* adc, bool enabled) {
+  SET_BIT_TO(ADMUX, ADLAR, enabled);
+}
+
+inline void chip_adc_select_input(ADC_t* adc,
+                                  uint8_t positive_input,
+                                  uint8_t negative_input) {
+  ADMUX = (ADMUX & (0xFF - ((_BV(MUX3) << 1) - 1))) | positive_input;
+}
+
+inline bool chip_adc_set_minimum_clock(ADC_t* adc, uint32_t minimum_adc_clock) {
+  uint8_t prescaler = scale_by_power_two_until_beneath(F_CPU,
+                                                       1,
+                                                       minimum_adc_clock);
+  if (prescaler > 8 || prescaler == 0)
+    return false;
+
+  ADCSRA = ADCSRA & (0xFF - ((1 << (ADPS2 + 1)) - 1)) | (prescaler - 1);
+  return true;
+}
+
+inline void chip_adc_set_interrupt(ADC_t* adc, bool enabled) {
+  SET_BIT_TO(ADCSRA, ADIE, enabled);
+}
+
+inline void chip_adc_start_conversion(ADC_t* adc) {
+  ADCSRA |= _BV(ADSC);
+}
+
+inline bool chip_adc_is_conversion_active(ADC_t* adc) {
+  return ADCSRA & _BV(ADSC);
+}
+
+inline adc_result_t chip_adc_read(ADC_t* adc) {
+  return (ADMUX & ADLAR ? (ADCW >> 6) : ADCW);
+}
+
 // --------------------------------[ GPIO Routines ]----------------------------
 //
 
@@ -31,6 +82,12 @@
 
 // 328p uses common GPIO data structures.
 #include "chip/gpio.h"
+
+GpioPin chip_adc_get_pin(ADC_t* adc, uint8_t analog_in) {
+  GpioPin p = DEFINE_UNNAMED_PIN(PORTC, analog_in);
+  return p;
+}
+
 
 // --------------------------------[ SPI Routines ]-----------------------------
 
@@ -116,13 +173,8 @@ inline GpioPin chip_usart_rxd_pin(USART_t* usart) {
 }
 
 inline void chip_usart_enable(USART_t* usart, bool enable) {
-  if (enable) {
-    UCSR0B &= ~_BV(RXEN0);
-    UCSR0B &= ~_BV(TXEN0);
-  } else {
-    UCSR0B |= _BV(RXEN0);
-    UCSR0B |= _BV(TXEN0);
-  }
+  SET_BIT_TO(UCSR0B, RXEN0, enable);
+  SET_BIT_TO(UCSR0B, TXEN0, enable);
 }
 
 inline bool chip_usart_set_baud(USART_t* usart,
@@ -163,10 +215,7 @@ inline bool chip_usart_set_baud(USART_t* usart,
   }
 
   UBRR0 = ubbr;
-  if (use_2x)
-    UCSR0A |= U2X0;
-  else
-    UCSR0A &= U2X0;
+  SET_BIT_TO(UCSR0A, U2X0, use_2x);
 
   return true;
 }
@@ -179,13 +228,13 @@ inline bool chip_configure_usart(USART_t* usart,
   UCSR0C =
     (usart_mode << UMSEL00) |
     (parity << UPM00) |
-    (two_stop_bits ? USBS0 : 0) |
+    (two_stop_bits ? _BV(USBS0) : 0) |
     (character_size - 5);
   return true;
 }
 
 inline bool chip_usart_can_send(USART_t* usart) {
-  return UCSR0A & UDRE0;
+  return IS_BIT_SET(UCSR0A, UDRE0);
 }
 
 inline void chip_usart_send(USART_t* usart, uint8_t data) {
@@ -193,7 +242,7 @@ inline void chip_usart_send(USART_t* usart, uint8_t data) {
 }
 
 inline bool chip_usart_can_recv(USART_t* usart) {
-  return UCSR0A & RXC0;
+  return IS_BIT_SET(UCSR0A, RXC0);
 }
 
 inline uint8_t chip_usart_recv(USART_t* usart) {
@@ -201,21 +250,15 @@ inline uint8_t chip_usart_recv(USART_t* usart) {
 }
 
 inline bool chip_usart_set_recv_interrupt(USART_t* usart, bool enabled) {
-  if (enabled)
-    UCSR0B |= RXCIE0;
-  else
-    UCSR0B &= ~RXCIE0;
+  SET_BIT_TO(UCSR0B, RXCIE0, enabled);
 }
 
 inline bool chip_usart_set_xmit_interrupt(USART_t* usart, bool enabled) {
-  if (enabled)
-    UCSR0B |= TXCIE0;
-  else
-    UCSR0B |= TXCIE0;
+  SET_BIT_TO(UCSR0B, TXCIE0, enabled);
 }
 
 inline bool chip_usart_is_recv_interrupt_enabled(USART_t* usart) {
-  return UCSR0B & RXCIE0;
+  return IS_BIT_SET(UCSR0B, RXCIE0);
 }
 
 #endif // _CHIP_328P_H

@@ -9,8 +9,13 @@
 
 #include <inttypes.h>
 
-#define SET_BIT_TO(reg, bit, val) ((reg) = ((reg) & ~(bit)) | ((val) << (bit)))
-#define IS_BIT_SET(reg, bit) ((reg) & (1 << (bit)))
+#define SET_BIT_TO(reg, bit, val) \
+  if (val)                                              \
+    (reg) |= _BV(bit);                                  \
+  else                                                  \
+    (reg) &= ~_BV(bit);
+
+#define IS_BIT_SET(reg, bit) ((reg) & _BV(bit))
 
 typedef uint16_t integer_ptr_t;
 

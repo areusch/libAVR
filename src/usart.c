@@ -146,32 +146,31 @@ bool usart_seen_watch_byte(UsartControl* usart) {
   return usart->watch_byte_seen_count;
 }
 
-void usart_receive(UsartControl* usart,
+uint8_t usart_receive(UsartControl* usart,
                    uint8_t* receive_buffer,
                    uint8_t buffer_num_bytes) {
   if (usart_receive_buffer_enabled(usart)) {
     CircularBuffer* buf = usart->receive_buffer;
-    uint8_t read_bytes = 0;
+    uint8_t read_bytes = circular_buffer_read(buf,
+                                              receive_buffer + read_bytes,
+                                              buffer_num_bytes - read_bytes);
 
-    while (read_bytes < buffer_num_bytes) {
-      while (!circular_buffer_size(buf)) ;
-      read_bytes += circular_buffer_read(buf,
-                                         receive_buffer + read_bytes,
-                                         buffer_num_bytes - read_bytes);
-    }
-
-    if (usart->enable_watch_byte && usart->receive_buffer) {
+    if (usart->enable_watch_byte) {
       for (uint8_t i = 0; i < read_bytes; ++i) {
         if (receive_buffer[i] == usart->watch_byte) {
           usart->watch_byte_seen_count--;
         }
       }
     }
+
+    return read_bytes;
   } else {
     for (uint8_t i = 0; i < buffer_num_bytes; ++i) {
       while (!chip_usart_can_recv(usart)) ;
       receive_buffer[i] = chip_usart_recv(usart);
     }
+
+    return buffer_num_bytes;
   }
 }
 

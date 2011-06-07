@@ -78,12 +78,12 @@ bool spi_communicate(SpiControl* port, SpiTransfer* transfer_request) {
 bool spi_setup_transfer(SpiTransfer* rq) {
 
   if (!rq->acknowledgement_try_count &&
-      rq->acknowledgement_mode != SPI_NO_ACKNOWLEDGEMENT) {
-    rq->acknowledgement_mode = SPI_NO_ACKNOWLEDGEMENT;
+      rq->acknowledgement_mode != kSPINoAcknowledgement) {
+    rq->acknowledgement_mode = kSPINoAcknowledgement;
   }
 
   if (!rq->buffer_size_bytes &&
-      rq->acknowledgement_mode == SPI_NO_ACKNOWLEDGEMENT) {
+      rq->acknowledgement_mode == kSPINoAcknowledgement) {
     // No data to transfer; xfer complete.
 
     if (rq->deselect_slave_when_finished)
@@ -166,13 +166,13 @@ bool spi_interrupt_handler(SpiTransfer** transfer_ptr,
 
       if (ack_num_tries <= xfer->acknowledgement_try_count) {
         switch (xfer->acknowledgement_mode) {
-        case SPI_WAIT_FOR_ACK_BYTE:
+        case kSPIWaitForAckByte:
           if (spi_received_byte == xfer->acknowledgement_byte) {
             xfer->acknowledgement_received = true;
             transfer_complete = true;
           }
           break;
-        case SPI_WAIT_FOR_DIFFERENT_ACK:
+        case kSPIWaitForDifferentAck:
           if (spi_received_byte != xfer->acknowledgement_byte) {
             xfer->acknowledgement_received = true;
             transfer_complete = true;
@@ -193,7 +193,7 @@ bool spi_interrupt_handler(SpiTransfer** transfer_ptr,
         if (transfer_complete) {
           // Received an acknowledgement byte. Save & finish the transfer.
           xfer->acknowledgement_byte = spi_received_byte;
-          xfer->acknowledgement_mode = SPI_NO_ACKNOWLEDGEMENT;
+          xfer->acknowledgement_mode = kSPINoAcknowledgement;
         } else {
           // Didn't receive the acknowledgement byte. Continue trying.
           *transfer_buffer = xfer->acknowledgement_request_byte;
@@ -210,7 +210,7 @@ bool spi_interrupt_handler(SpiTransfer** transfer_ptr,
       // wait for an acknowledgement byte or just finish out the
       // transfer.
 
-      if (xfer->acknowledgement_mode != SPI_NO_ACKNOWLEDGEMENT) {
+      if (xfer->acknowledgement_mode != kSPINoAcknowledgement) {
         *transfer_buffer = xfer->acknowledgement_request_byte;
 
         // Unlike the previous case, let the current byte counter

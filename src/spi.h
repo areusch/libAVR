@@ -21,10 +21,10 @@
  * polarity on the SPI bus.
  */
 typedef enum SpiMode {
-    SPI_MODE_SAMPLE_RISING_SETUP_FALLING = 0,
-    SPI_MODE_SETUP_RISING_SAMPLE_FALLING = 1,
-    SPI_MODE_SAMPLE_FALLING_SETUP_RISING = 2,
-    SPI_MODE_SETUP_FALLING_SAMPLE_RISING = 3
+    kSPIModeSampleRisingSetupFalling = 0,
+    kSPIModeSetupRisingSampleFalling = 1,
+    kSPIModeSampleFallingSetupRising = 2,
+    kSPIModeSetupFallingSampleRising = 3
 } SpiMode;
 
 /**
@@ -33,9 +33,9 @@ typedef enum SpiMode {
  * @see SpiTransfer.acknowledgement_mode
  */
 typedef enum SpiAcknowledgementMode {
-    SPI_NO_ACKNOWLEDGEMENT = 0,
-    SPI_WAIT_FOR_ACK_BYTE = 1, /* Wait for @ref acknowledgement_byte */
-    SPI_WAIT_FOR_DIFFERENT_ACK = 2  /* Wait for a byte != @ref acknowledgement_byte */
+    kSPINoAcknowledgement = 0,
+    kSPIWaitForAckByte = 1, /* Wait for @ref acknowledgement_byte */
+    kSPIWaitForDifferentAck = 2  /* Wait for a byte != @ref acknowledgement_byte */
 } SpiAcknowledgementMode;
 
 // Forward declaration so compiler doesn't complain about the pointer below.

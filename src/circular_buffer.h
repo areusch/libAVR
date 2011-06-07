@@ -9,6 +9,7 @@
 #define _CIRCULAR_BUFFER_H_
 
 #include <inttypes.h>
+#include "assert.h"
 
 #define EXTERNAL_CONST_INTERFACE _CIRCULAR_BUFFER
 #include "external-const.h"
@@ -133,5 +134,18 @@ inline uint8_t circular_buffer_size(CircularBuffer* buf) {
     else
         return buf->tail - buf->head - 1;
 }
+
+
+inline const uint8_t* circular_buffer_pop(CircularBuffer* buf, const uint8_t* it) {
+  ASSERT(it == circular_buffer_begin(buf));
+
+  if (!circular_buffer_size(buf))
+    return circular_buffer_end(buf);
+
+  const uint8_t* next = circular_buffer_next(buf, it);
+  * ((uint8_t*) &buf->head) = (buf->head + 1) & buf->buffer_index_bitmask;
+  return next;
+}
+
 
 #endif /* _CIRCULAR_BUFFER_H_ */

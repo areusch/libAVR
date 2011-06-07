@@ -4,3 +4,4 @@
 *.a
 *.e
 /.configure
+/src/interrupt/x128a1.h

@@ -51,12 +51,14 @@ ihex_builder = Builder(action = 'avr-objcopy -R .eeprom -O ihex $SOURCE $TARGET'
                        suffix = '.hex',
                        src_suffix = '.elf')
 
+
+def do_nothing(*args, **kwargs):
+    pass
+
 if GetOption('burn'):
     avrdude_builder = Builder(action = '$AVRDUDE -P $AVRDUDEPORT -p $AVRDUDEMCU -c $AVRDUDEPROG -Uflash:w:$SOURCE',
                               src_suffix = '.hex')
 else:
-    def do_nothing(*args, **kwargs):
-        pass
     avrdude_builder = Builder(action = do_nothing)
 
 env = DefaultEnvironment()
@@ -73,8 +75,8 @@ env.AppendUnique(CFLAGS = ['-mmcu=%s' % GetOption('chip'),
                            '-DF_CPU=%dL' % (GetOption('frequency') * 1000000),
                            '-std=gnu99',
                            '-O2'],
-                 CPPPATH = [avrlibc, 'src', '#.'],
-                 LDFLAGS = ['-mmcu=%s' % GetOption('chip')])
+                 CPPPATH = [avrlibc, '#.'],
+                 LINKFLAGS = ['-mmcu=%s' % GetOption('chip'), '-O2'])
 
 
 env.SetDefault(AVRDUDE = 'avrdude',
@@ -82,6 +84,5 @@ env.SetDefault(AVRDUDE = 'avrdude',
                AVRDUDEMCU = GetOption('chip').replace('atmega', 'm').replace('atxmega', 'x').replace('attiny', 't'),
                AVRDUDEPROG = 'arduino')
 
-# env.Library('libavr', )
-libavr = Glob('src/*.c')
+libavr = Glob('*.c')
 Return('libavr')

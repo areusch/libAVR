@@ -94,7 +94,7 @@ static inline adc_result_t chip_adc_read(ADC_t* adc) {
 #define CHIP_GPIO_READ(port, pin) (*(port - 2) & (1 << pin))
 
 // 328p uses common GPIO data structures.
-#include "chip/gpio.h"
+#include "libavr/chip/gpio.h"
 
 static inline GpioPin chip_adc_get_pin(ADC_t* adc, uint8_t analog_in) {
   GpioPin p = DEFINE_UNNAMED_PIN(PORTC, analog_in);

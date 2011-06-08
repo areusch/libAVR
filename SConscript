@@ -1,0 +1,87 @@
+import os
+import sys
+
+AddOption('--chip',
+          dest='chip',
+          type='string',
+          nargs=1,
+          action='store',
+          help='part # of the chip to compile to')
+
+AddOption('--frequency',
+          dest='frequency',
+          type='float',
+          nargs=1,
+          action='store',
+          help='operating frequency of the mega, in mhz')
+
+AddOption('--dude',
+          dest='dude',
+          type='string',
+          nargs=1,
+          action='store',
+          default='usb',
+          help='port to use for avrdude')
+
+AddOption('--burn',
+          dest='burn',
+          action='store_true',
+          default=False,
+          help='burn code to the AVR device')
+
+searchpath = {'Darwin': ['/usr/local/CrossPack-AVR/avr/include']}
+myos = os.uname()[0]
+
+if not myos in searchpath:
+    print 'libAVR: ERROR: Don\'t know where to find AVR-libc on your os!'
+    sys.exit(1)
+
+avrlibc = None
+for x in searchpath[myos]:
+    if os.path.isfile(x + os.path.sep + 'avr' + os.path.sep + 'version.h'):
+        avrlibc = x
+        break
+else:
+    print 'libAVR: ERROR: Didn\'t find AVR-libc in any of the search paths registered'
+    print '               for your OS!'
+    sys.exit(1)
+
+
+ihex_builder = Builder(action = 'avr-objcopy -R .eeprom -O ihex $SOURCE $TARGET',
+                       suffix = '.hex',
+                       src_suffix = '.elf')
+
+if GetOption('burn'):
+    avrdude_builder = Builder(action = '$AVRDUDE -P $AVRDUDEPORT -p $AVRDUDEMCU -c $AVRDUDEPROG -Uflash:w:$SOURCE',
+                              src_suffix = '.hex')
+else:
+    def do_nothing(*args, **kwargs):
+        pass
+    avrdude_builder = Builder(action = do_nothing)
+
+env = DefaultEnvironment()
+env.Append(BUILDERS = {'AVRBurn': avrdude_builder,
+                       'IHex': ihex_builder})
+
+#if GetOption('dude') != 'usb' and not os.path.exists(GetOption('dude')):
+#    print 'WARN: Won\'t burn because
+
+env['CC'] = 'avr-gcc'
+env['ENV'] = {'PATH': os.environ['PATH']}
+
+env.AppendUnique(CFLAGS = ['-mmcu=%s' % GetOption('chip'),
+                           '-DF_CPU=%dL' % (GetOption('frequency') * 1000000),
+                           '-std=gnu99',
+                           '-O2'],
+                 CPPPATH = [avrlibc, 'src', '#.'],
+                 LDFLAGS = ['-mmcu=%s' % GetOption('chip')])
+
+
+env.SetDefault(AVRDUDE = 'avrdude',
+               AVRDUDEPORT = GetOption('dude'),
+               AVRDUDEMCU = GetOption('chip').replace('atmega', 'm').replace('atxmega', 'x').replace('attiny', 't'),
+               AVRDUDEPROG = 'arduino')
+
+# env.Library('libavr', )
+libavr = Glob('src/*.c')
+Return('libavr')

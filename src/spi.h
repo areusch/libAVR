@@ -13,7 +13,8 @@
 #include <avr/io.h>
 #include <inttypes.h>
 #include <stdbool.h>
-#include "chip.h"
+#include "libavr/chip.h"
+#include "libavr/gpio.h"
 
 /**
  * SPI Bus Mode.
@@ -63,7 +64,7 @@ typedef struct SpiSlave {
   /**
    * The pin to which the slave is tied.
    */
-  GpioPin* ss;
+  GpioPin ss;
 
   /**
    * True if SS is active-high; false if SS is active-low.
@@ -286,7 +287,9 @@ void spi_set_slave_select_output(SpiSlave* spi, bool output);
  * @param channel index of the SPI port to address
  * @param selected true to select the slave (SS goes low), false to deselect.
  */
-void spi_select_slave(SpiSlave* slave, bool selected);
+static inline void spi_select_slave(SpiSlave* slave, bool selected) {
+  gpio_set(slave->ss, selected ^ !slave->ss_active_high);
+}
 
 /**
  * Read the MISO line and report its value.

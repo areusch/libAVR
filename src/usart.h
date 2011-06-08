@@ -19,8 +19,8 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "circular_buffer.h"
-#include "chip.h"
+#include "libavr/circular_buffer.h"
+#include "libavr/chip.h"
 
 /**
  * USART Callback for asynchronous transfers.
@@ -123,7 +123,7 @@ void usart_send_cstring(UsartControl* usart, const char* str);
  * @param usart USART to examine
  * @return true if a transmission is active
  */
-inline bool usart_is_transmission_active(UsartControl* control) {
+static inline bool usart_is_transmission_active(UsartControl* control) {
   return !!control->ongoing_transfer.buffer;
 }
 
@@ -169,7 +169,7 @@ uint8_t usart_receive(UsartControl* usart,
  *
  * @return byte received from the USART.
  */
-inline uint8_t usart_receive_byte(UsartControl* usart) {
+static inline uint8_t usart_receive_byte(UsartControl* usart) {
     uint8_t received_byte;
     usart_receive(usart, &received_byte, 1);
     return received_byte;
@@ -182,7 +182,7 @@ inline uint8_t usart_receive_byte(UsartControl* usart) {
  * @param usart USART to inquire on the receive buffer's status.
  * @return true if a receive buffer exists and data can be read.
  */
-bool usart_receive_buffer_empty(UsartControl* usart) {
+static inline bool usart_receive_buffer_empty(UsartControl* usart) {
   return !usart->receive_buffer &&
     circular_buffer_size(usart->receive_buffer) > 0;
 }
@@ -193,7 +193,7 @@ bool usart_receive_buffer_empty(UsartControl* usart) {
  * @param usart USART to examine
  * @return true if receive buffering is enabled, false otherwise.
  */
-inline bool usart_receive_buffer_enabled(UsartControl* usart) {
+static inline bool usart_receive_buffer_enabled(UsartControl* usart) {
   return !!usart->receive_buffer;
 }
 
@@ -257,7 +257,7 @@ uint8_t usart_num_watch_bytes_seen(UsartControl* usart);
  *
  * @param usart USART to use for stdio.
  */
-void usart_set_stdio(UsartControl* usart);
+void usart_set_stdio(USART_t* usart);
 
 /**
  * USART Interrupt handler.
@@ -270,7 +270,7 @@ void usart_set_stdio(UsartControl* usart);
  * appropriate interrupt handler which should indicate that it is safe to send
  * another byte.
  */
-inline void usart_transmit_interrupt_handler(UsartControl* usart) {
+static inline void usart_transmit_interrupt_handler(UsartControl* usart) {
   if (!usart->ongoing_transfer.buffer) {
     chip_usart_set_xmit_interrupt(usart, false);
     return;
@@ -292,7 +292,7 @@ inline void usart_transmit_interrupt_handler(UsartControl* usart) {
  *
  * @param usart Control structure currently associated with the USART.
  */
-inline void usart_receive_interrupt_handler(UsartControl* usart) {
+static inline void usart_receive_interrupt_handler(UsartControl* usart) {
   if (!usart->receive_buffer) {
     chip_usart_set_recv_interrupt(usart, false);
     return;

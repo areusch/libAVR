@@ -8,12 +8,12 @@
  * Contributions:
  */
 
-#include "spi.h"
+#include "libavr/spi.h"
 #include <avr/interrupt.h>
 #include <inttypes.h>
 #include <stddef.h>
-#include "chip.h"
-#include "gpio.h"
+#include "libavr/chip.h"
+#include "libavr/gpio.h"
 
 SpiTransfer** ___spi_active_transfers[CHIP_NUM_SPI];
 

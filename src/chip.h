@@ -8,10 +8,10 @@
 #define _CHIP_H
 
 #include <avr/io.h>
-#include "chip/util.h"
+#include "libavr/chip/util.h"
 
 #if defined (__AVR_ATmega328P__) || defined (__AVR_ATmega328__)
-#include "chip/328p.h"
+#include "libavr/chip/328p.h"
 #else
 #error "libAVR not ported to your architecture yet :("
 #endif

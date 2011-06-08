@@ -37,17 +37,6 @@ typedef struct GpioPin {
   (CHIP_COMMON_GPIO_BITVECTOR_TYPE) CHIP_PORT_TO_INDEX_COMPUTATION((integer_ptr_t) &port | (pin)) \
   }
 
-/* #define NAMED_PIN_PORT(port)     port ## _PORT */
-/* #define NAMED_PIN_PIN(port)      port ## _PIN */
-/* #define NAMED_PIN_BIT(port)      (1 << (NAMED_PIN_PIN(port))) */
-
-/* #define GPIO_OUTPUT(port)     CHIP_GPIO_SET_OUTPUT(NAMED_PIN_PORT(port), NAMED_PIN_BIT(port)) */
-/* #define GPIO_INPUT(port)      CHIP_GPIO_SET_INPUT(NAMED_PIN_PORT(port), NAMED_PIN_BIT(port)) */
-/* #define GPIO_SET(port)        CHIP_GPIO_SET(NAMED_PIN_PORT(port), NAMED_PIN_BIT(port)) */
-/* #define GPIO_TOGGLE(port)     CHIP_GPIO_TOGGLE(NAMED_PIN_PORT(port), NAMED_PIN_BIT(port)) */
-
-/* #define GPIO_READ(port)       CHIP_GPIO_READ(NAMED_PIN_PORT(port), NAMED_PIN_BIT(port)) */
-
 typedef volatile uint8_t PORT_t;
 
 #endif // _CHIP_GPIO_H

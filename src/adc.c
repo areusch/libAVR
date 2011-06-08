@@ -4,7 +4,7 @@
  *
  */
 
-#include "adc.h"
+#include "libavr/adc.h"
 #include <stdlib.h>
 
 bool adc_init(ADC_t* adc,

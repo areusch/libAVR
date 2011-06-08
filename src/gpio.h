@@ -10,7 +10,7 @@
 
 #include <avr/io.h>
 #include <stdbool.h>
-#include "chip.h"
+#include "libavr/chip.h"
 
 #define NAMED_PIN_PORT(id) &(id ## _PORT)
 #define NAMED_PIN_BIT(id) (1 << (id ## _PIN))
@@ -21,8 +21,8 @@
 #define OUTPUT(pin) CHIP_GPIO_SET_OUTPUT(NAMED_PIN_PORT(pin), NAMED_PIN_BIT(pin))
 
 #define TOGGLE(pin) CHIP_GPIO_TOGGLE(NAMED_PIN_PORT(pin), NAMED_PIN_BIT(pin))
-#define HIGH(pin) CHIP_GPIO_SET(NAMED_PIN_PORT(pin), PIN_BIN(pin), 1)
-#define LOW(pin) CHIP_GPIO_SET(NAMED_PIN_PORT(pin), PIN_BIN(pin), 0)
+#define HIGH(pin) CHIP_GPIO_SET(NAMED_PIN_PORT(pin), NAMED_PIN_BIT(pin), 1)
+#define LOW(pin) CHIP_GPIO_SET(NAMED_PIN_PORT(pin), NAMED_PIN_BIT(pin), 0)
 
 #define VALUE_OF(pin) CHIP_GPIO_READ(NAMED_PIN_PORT(pin), NAMED_PIN_BIT(pin))
 

@@ -6,7 +6,7 @@
  */
 
 #define _CIRCULAR_BUFFER 0xEC
-#include "circular_buffer.h"
+#include "libavr/circular_buffer.h"
 
 void circular_buffer_init(CircularBuffer* buf,
                           uint8_t* backing_buffer,

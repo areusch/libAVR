@@ -7,12 +7,13 @@
  *  Contributions:
  */
 
-#include "usart.h"
+#include "libavr/usart.h"
 #include <avr/pgmspace.h>
 #include <util/atomic.h>
 #include <stdio.h>
-#include "chip.h"
-#include "gpio.h"
+#include "libavr-config.h"
+#include "libavr/chip.h"
+#include "libavr/gpio.h"
 
 inline uint16_t compute_bsel(uint32_t baud_rate,
                              int8_t bscale,
@@ -55,7 +56,7 @@ bool usart_init(USART_t* usart,
 
   chip_usart_enable(usart, false);
 
-  if (!chip_usart_set_baud(usart, baud_rate, 0))
+  if (!chip_usart_set_baud(usart, baud_rate, 2000))
     return false;
 
   if (!chip_configure_usart(usart,
@@ -68,6 +69,7 @@ bool usart_init(USART_t* usart,
   gpio_set_output(chip_usart_txd_pin(usart));
 
   chip_usart_enable(usart, true);
+  return true;
 }
 
 void usart_send(UsartControl* usart, uint8_t* data, uint8_t length) {
@@ -191,19 +193,19 @@ void usart_send_async(UsartControl* usart,
 
 #if defined(DEBUG_LEVEL) && DEBUG_LEVEL > DEBUG_LEVEL_OFF
 
-USART_t* usart_stdio;
+static USART_t* usart_stdio;
 
 static FILE usart_stdio_stream;
 
 int usart_stdio_stream_put(char a, FILE* stream) {
-    while (!(usart_stdio->STATUS & USART_DREIF_bm)) ;
-    usart_stdio->DATA = a;
-    return 0;
+  while (!chip_usart_can_send(usart_stdio)) ;
+  chip_usart_send(usart_stdio, a);
+  return 0;
 }
 
 int usart_stdio_stream_get(FILE* stream) {
-    while (!(usart_stdio->STATUS & USART_RXCIF_bm)) ;
-    return usart_stdio->DATA;
+  while (!chip_usart_can_recv(usart_stdio)) ;
+  return chip_usart_recv(usart_stdio);
 }
 
 void usart_set_stdio(USART_t* usart) {

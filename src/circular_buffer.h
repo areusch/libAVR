@@ -9,10 +9,10 @@
 #define _CIRCULAR_BUFFER_H_
 
 #include <inttypes.h>
-#include "assert.h"
+#include "libavr/assert.h"
 
 #define EXTERNAL_CONST_INTERFACE _CIRCULAR_BUFFER
-#include "external-const.h"
+#include "libavr/external-const.h"
 
 /** State required to maintain a circular buffer.
  */

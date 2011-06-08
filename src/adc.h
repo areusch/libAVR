@@ -8,8 +8,8 @@
 #define _SRC_ADC_H
 
 #include <stdbool.h>
-#include "chip.h"
-#include "gpio.h"
+#include "libavr/chip.h"
+#include "libavr/gpio.h"
 
 typedef struct AnalogInput {
   GpioPin positive_pin;
@@ -26,23 +26,23 @@ bool adc_init(ADC_t* adc,
 
 void adc_init_pin(ADC_t* adc, uint8_t analog_in, AnalogInput* out_ain);
 
-inline void adc_select(ADC_t* adc, AnalogInput* input) {
+static inline void adc_select(ADC_t* adc, AnalogInput* input) {
   chip_adc_select_input(adc, input->positive_in, input->negative_in);
 }
 
-inline void adc_start_conversion(ADC_t* adc) {
+static inline void adc_start_conversion(ADC_t* adc) {
   chip_adc_start_conversion(adc);
 }
 
-inline bool adc_is_conversion_active(ADC_t* adc) {
+static inline bool adc_is_conversion_active(ADC_t* adc) {
   return chip_adc_is_conversion_active(adc);
 }
 
-inline adc_result_t adc_read(ADC_t* adc) {
+static inline adc_result_t adc_read(ADC_t* adc) {
   return chip_adc_read(adc);
 }
 
-inline adc_result_t adc_select_and_convert(ADC_t* adc, AnalogInput* input) {
+static inline adc_result_t adc_select_and_convert(ADC_t* adc, AnalogInput* input) {
   adc_select(adc, input);
   adc_start_conversion(adc);
 

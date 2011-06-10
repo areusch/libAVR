@@ -10,6 +10,9 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include "libavr-config.h"
+#include "libavr/usart.h"
+
+extern UsartControl __debug_usart;
 
 void debug_init();
 

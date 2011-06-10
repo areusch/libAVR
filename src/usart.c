@@ -73,7 +73,7 @@ bool usart_init(USART_t* usart,
 }
 
 void usart_send(UsartControl* usart, uint8_t* data, uint8_t length) {
-//  while (usart->ongoing_transfer.buffer) ;
+  while (usart->ongoing_transfer.buffer) ;
 
   for (uint8_t i = 0; i < length; ++i) {
     while (!(chip_usart_can_send(usart))) ;

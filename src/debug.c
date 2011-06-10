@@ -7,10 +7,10 @@
 #include "libavr/debug.h"
 #include "libavr/usart.h"
 
+UsartControl __debug_usart;
+
 void debug_init() {
 #if DEBUG_LEVEL > DEBUG_LEVEL_OFF
-  UsartControl temp;
-
   if (!usart_init(&DEBUG_USART,
                   DEBUG_PORT_BAUD_RATE,
                   USART_MODE_ASYNCHRONOUS,

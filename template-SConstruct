@@ -1,0 +1,30 @@
+# libAVR Template Build file
+#
+# Thanks to the flexibility of SConstruct, this build file is bascially a boilerplate
+# build-all file for any c-based AVR project. You can modify it to build any project
+# by changing the commands under the section BUILD TARGETS.
+
+# Required: imports knowledge of libAVR into sconscript, sets up command line args
+libavr = SConscript('libavr/SConscript')
+env = DefaultEnvironment()
+
+# Unsure if this is still needed...
+#env.Append(CPPPATH=['libavr/src'])
+
+# If you need floating-point support in printf, uncomment the following lines:
+#env.Append(CFLAGS = '-Wl,-u,vfprintf')
+#env.Append(LINKFLAGS = '-Wl,-u,vfprintf')
+#env.Append(LIBS = ['printf_flt', 'm'])
+
+# -------------------------------[ Build Targets ]------------------------------
+#
+# Program() commands in this section define build targets. To add libAVR to your
+# program, append libavr to your source list; it contains the list of libAVR
+# source files.
+
+Program('main.elf', Glob('*.c') + libavr)
+
+# -----------------------------[ End Build Targets ]----------------------------
+
+# Burn code to the AVR
+env.AVRBurn(env.IHex('main.elf'))
